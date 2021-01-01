@@ -1,0 +1,29 @@
+#! /usr/bin/env bash
+# vim: filetype=sh syntax=sh
+
+set -euo pipefail
+
+source "${TMPL_SCRIPT_INCLUDE_DIR}/diagnostics"
+
+tmpl_sh_template='script'
+
+tmpl_sh_names=( "${@-$tmpl_sh_template}" )
+
+for _name in "${tmpl_sh_names[@]}"
+do
+  tmpl_target_dir="${TMPL_OUTPUT_DIR//\{\}/$_name}"
+  tmpl_target_file="${tmpl_target_dir}/${_name}"
+
+  if [[ -e "$tmpl_target_file" ]]
+  then
+    tmpl_info "File exists" "skipping ${tmpl_target_file}"
+  fi
+
+  if [[ ! -d "$tmpl_target_dir" ]]
+  then
+    mkdir -p "$tmpl_target_dir"
+  fi
+
+  cp "${TMPL_TYPE_DIR}/templates/${tmpl_sh_template}" "$tmpl_target_file"
+done
+

@@ -1,0 +1,20 @@
+#! /usr/bin/env bash
+# vim: filetype=sh syntax=sh
+
+set -euo pipefail
+
+source "${TMPL_SCRIPT_INCLUDE_DIR}/tmpl"
+source "${TMPL_SCRIPT_INCLUDE_DIR}/diagnostics"
+source "${TMPL_SCRIPT_INCLUDE_DIR}/checks"
+
+_app_name=${1-my_react_app}
+_target_dir="${TMPL_OUTPUT_DIR}/${_app_name}"
+
+if [[ -e "$_target_dir" ]]
+then
+  tmpl_error "File exists: $_target_dir"
+else
+  mkdir "$_target_dir"
+  cp -R "${TMPL_TYPE_DIR}/templates/"** "$_target_dir"
+fi
+

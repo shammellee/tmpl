@@ -1,0 +1,54 @@
+#! /usr/bin/env bash
+# vim: filetype=sh syntax=sh
+
+set -euo pipefail
+
+source "${TMPL_SCRIPT_INCLUDE_DIR}/tmpl"
+source "${TMPL_SCRIPT_INCLUDE_DIR}/diagnostics"
+
+_tmpl_clib_templates_rename=()
+_tmpl_clib_templates_rename+=(lib.h)
+_tmpl_clib_templates_rename+=(lib.c)
+_tmpl_clib_template_path="${TMPL_TYPE_DIR}/templates"
+_tmpl_clib_cmakefile_template='CMakeLists.txt'
+
+if [[ -n "${@}" ]]
+then
+  for _name in "${@}"
+  do
+    _output_dir="${TMPL_OUTPUT_DIR//\{\}/$_name}"
+
+    for _t in "${_tmpl_clib_templates_rename[@]}"
+    do
+      _target_file="${_output_dir}/${_name}${_t/lib/}"
+
+      if [[ -e "${_target_file}" ]]
+      then
+        tmpl_skip_info "$_target_file"
+        continue
+      fi
+
+      tmpl_mkdir_if_not_exists "$_output_dir"
+
+      tmpl_process_templates \
+        --define=TMPL_CLIB_NAME=$_name \
+        "${_tmpl_clib_template_path}/${_t}" \
+        > "$_target_file"
+    done
+
+    _target_file="${_output_dir}/${_tmpl_clib_cmakefile_template}"
+
+    if [[ -e "$_target_file" ]]
+    then
+      tmpl_skip_info "$_target_file"
+    else
+      tmpl_process_templates \
+        --define=TMPL_CLIB_NAME=$_name \
+        "${_tmpl_clib_template_path}/${_tmpl_clib_cmakefile_template}" \
+        > "$_target_file"
+    fi
+  done
+else
+  tmpl_error "no library names specified"
+fi
+

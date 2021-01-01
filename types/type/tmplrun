@@ -1,0 +1,26 @@
+#! /usr/bin/env bash
+# vim: filetype=sh syntax=sh
+
+set -uo pipefail
+
+source "${TMPL_SCRIPT_INCLUDE_DIR}/tmpl"
+source "${TMPL_SCRIPT_INCLUDE_DIR}/diagnostics"
+source "${TMPL_SCRIPT_INCLUDE_DIR}/checks"
+
+if [[ 0 -ge $# ]]
+then
+  tmpl_error "Usage: tmpl type <type> [...]"
+fi
+
+for _t in "${@}"
+do
+  _target_dir="${TMPL_TYPES_ROOT_DIR}/${_t}"
+  if [[ -e "$_target_dir" ]]
+  then
+    tmpl_info "Type exists" "Skipping $_t"
+  else
+    mkdir "$_target_dir"
+    cp -R "${TMPL_TYPE_DIR}/templates" "$_target_dir"
+  fi
+done
+

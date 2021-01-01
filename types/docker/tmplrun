@@ -1,0 +1,25 @@
+#! /usr/bin/env bash
+# vim: filetype=sh syntax=sh
+
+set -euo pipefail
+
+source "${TMPL_SCRIPT_INCLUDE_DIR}/tmpl"
+source "${TMPL_SCRIPT_INCLUDE_DIR}/diagnostics"
+
+_tmpl_docker_template="Dockerfile"
+_tmpl_docker_target_file="${TMPL_OUTPUT_DIR}/${_tmpl_docker_template}"
+
+tmpl_error_if_placeholders
+
+if [[ -e "$_tmpl_docker_target_file" ]]
+then
+  tmpl_skip_info "$_tmpl_docker_target_file"
+  exit
+fi
+
+tmpl_mkdir_if_not_exists "${TMPL_OUTPUT_DIR}"
+
+tmpl_process_templates \
+  "${TMPL_TYPE_DIR}/templates/${_tmpl_docker_template}" \
+  > "$_tmpl_docker_target_file"
+

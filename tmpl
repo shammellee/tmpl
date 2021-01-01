@@ -1,0 +1,100 @@
+#! /usr/bin/env bash
+# vim: filetype=sh syntax=sh
+
+set -uo pipefail
+
+TMPL_SCRIPT_NAME="${0##*/}"
+
+TMPL_BIN_PATH=${TMPL_BIN_PATH-$(dirname $0)}
+
+if [[ ! -f "${TMPL_BIN_PATH}/${TMPL_SCRIPT_NAME}" ]]
+then
+  echo -e "\e[31mError:\e[0m can't find path to ${TMPL_SCRIPT_NAME} installation"
+  echo "Set TMPL_BIN_PATH environment variable"
+  echo "Example: export TMPL_BIN_PATH=~/bin/tmpl"
+  echo -e "\e[31mError:\e[0m can't find ${TMPL_SCRIPT_NAME} in ${TMPL_BIN_PATH}"
+  exit 1
+fi
+
+if [[ $# -lt 1 ]]
+then
+  echo -e "\e[33mUsage:\e[0m ${TMPL_SCRIPT_NAME} <type> [<name>] [...]"
+  exit
+fi
+
+export TMPL_TYPE=$1
+export TMPL_INCLUDE_DIR="${TMPL_BIN_PATH}/include"
+export TMPL_M4_INCLUDE_DIR="${TMPL_INCLUDE_DIR}/m4"
+export TMPL_SCRIPT_INCLUDE_DIR="${TMPL_INCLUDE_DIR}/scripts"
+export TMPL_TYPES_ROOT_DIR="${TMPL_BIN_PATH}/types"
+export TMPL_TYPE_DIR="${TMPL_BIN_PATH}/types/${TMPL_TYPE}"
+export TMPL_OUTPUT_DIR="$PWD"
+export TMPL_M4_MANAGED=1
+TMPLFILE="${PWD}/tmplfile"
+TMPL_ARGS=( "${@:2}" )
+TMPL_TYPES=( "${TMPL_TYPES_ROOT_DIR}"/* )
+TMPL_TOTAL_FILES_PROCESSED=0
+
+source "${TMPL_SCRIPT_INCLUDE_DIR}/diagnostics"
+source "${TMPL_SCRIPT_INCLUDE_DIR}/checks"
+source "${TMPL_SCRIPT_INCLUDE_DIR}/tmpl"
+
+tmpl_check_help $@
+tmpl_check_type
+
+function tmpl_run()
+{
+  exec ${TMPL_TYPE_DIR}/tmplrun ${TMPL_ARGS[@]}
+
+  if [[ 0 -eq $? ]]
+  then
+    ((++TMPL_TOTAL_FILES_PROCESSED))
+  fi
+}
+
+# TMPLFILE EXISTS
+if [[ -f "$TMPLFILE" ]]
+then
+  _line_number=1
+
+  while read -r _line
+  do
+    if [[ -n $_line ]]
+    then
+      _type=${_line%%:*}
+      _path=${_line##*:}
+
+      while [[ "$_path" =~ ^/ ]]
+      do
+        _path="${_path:1}"
+      done
+
+      if [[ $_type == $TMPL_TYPE ]]
+      then
+        if [[ -z ${TMPL_ARGS[@]} && "$_path" =~ '{}' ]]
+        then
+          tmpl_error "using placeholders in \e[33mtmplfile\e[0m without specifying a name"
+          echo -e "\e[31m${_line_number}\e[0m:    --> ${_line}"
+          exit 1
+        fi
+
+        export TMPL_TMPLFILE_MATCH_LINE=$_line
+        export TMPL_TMPLFILE_MATCH_LINE_NUMBER=$_line_number
+        export TMPL_OUTPUT_DIR="${PWD}/${_path}"
+
+        tmpl_run
+        break
+      fi
+    fi
+    ((++_line_number))
+  done < "$TMPLFILE"
+
+  if [[ 0 -eq $TMPL_TOTAL_FILES_PROCESSED ]]
+  then
+    tmpl_run
+  fi
+
+else
+  tmpl_run
+fi
+

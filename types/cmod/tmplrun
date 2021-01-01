@@ -1,0 +1,42 @@
+#! /usr/bin/env bash
+# vim: filetype=sh syntax=sh
+
+set -euo pipefail
+
+source "${TMPL_SCRIPT_INCLUDE_DIR}/tmpl"
+source "${TMPL_SCRIPT_INCLUDE_DIR}/diagnostics"
+
+_tmpl_cmod_templates_rename=()
+_tmpl_cmod_templates_rename+=(module.h)
+_tmpl_cmod_templates_rename+=(module.c)
+_tmpl_cmod_template_path="${TMPL_TYPE_DIR}/templates"
+_tmpl_cmod_cmakefile_template='CMakeLists.txt'
+
+if [[ -n "${@}" ]]
+then
+  for _name in "${@}"
+  do
+    _output_dir="${TMPL_OUTPUT_DIR//\{\}/$_name}"
+
+    for _t in "${_tmpl_cmod_templates_rename[@]}"
+    do
+      _target_file="${_output_dir}/${_name}${_t/module/}"
+
+      if [[ -e "${_target_file}" ]]
+      then
+        tmpl_skip_info "$1"
+        continue
+      fi
+
+      tmpl_mkdir_if_not_exists "$_output_dir"
+
+      tmpl_process_templates \
+        --define=TMPL_CMOD_NAME=$_name \
+        "${_tmpl_cmod_template_path}/${_t}" \
+        > "$_target_file"
+    done
+  done
+else
+  tmpl_error "no module names specified"
+fi
+

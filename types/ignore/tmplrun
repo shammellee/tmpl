@@ -1,0 +1,16 @@
+#! /usr/bin/env bash
+# vim: filetype=sh syntax=sh
+
+set -euo pipefail
+
+_tmpl_ignore_template='.gitignore'
+
+cat <<X
+"${TMPL_TYPE_DIR}/templates/${_tmpl_ignore_template}" \
+"${TMPL_OUTPUT_DIR}"
+X
+
+cp \
+  "${TMPL_TYPE_DIR}/templates/${_tmpl_ignore_template}" \
+  "${TMPL_OUTPUT_DIR}"
+

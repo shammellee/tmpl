@@ -1,0 +1,44 @@
+#! /usr/bin/env bash
+# vim: filetype=sh syntax=sh
+
+set -euo pipefail
+
+function tmpl_check_type()
+{
+  if [[ ! -d "$TMPL_TYPE_DIR" ]]
+  then
+    tmpl_error "invalid type \"${TMPL_TYPE}\""
+    tmpl_show_types
+
+    exit 1
+  fi
+}
+
+function tmpl_check_help()
+{
+  local _help_args=()
+        _help_args+=( -h )
+        _help_args+=( --help )
+        _help_args+=( help )
+
+  if [[ " ${_help_args[@]} " =~ " $1 " ]]
+  then
+    tmpl_info "Help"
+    tmpl_show_types
+
+    exit
+  fi
+}
+
+function tmpl_show_types()
+{
+  echo "Valid types are..."
+  echo ${TMPL_TYPES[@]##*/} | xargs -n 1 -I {} echo '  {}'
+}
+
+function tmpl_type_exists()
+{
+  tmpl_skip_info "${TMPL_TYPES_ROOT_DIR}/${1}"
+  exit 1
+}
+

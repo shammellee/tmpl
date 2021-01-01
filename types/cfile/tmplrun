@@ -1,0 +1,46 @@
+#! /usr/bin/env bash
+# vim: filetype=sh syntax=sh
+
+set -euo pipefail
+
+source "${TMPL_SCRIPT_INCLUDE_DIR}/tmpl"
+source "${TMPL_SCRIPT_INCLUDE_DIR}/diagnostics"
+
+_tmpl_cfile_template="main.c"
+_tmpl_cfile_template_path="${TMPL_TYPE_DIR}/templates/${_tmpl_cfile_template}"
+
+if [[ -n "${@}" ]]
+then
+  for _name in "${@}"
+  do
+    _output_dir="${TMPL_OUTPUT_DIR//\{\}/$_name}"
+    _target_file="${_output_dir}/${_name}${_tmpl_cfile_template/main/}"
+
+    if [[ -e "${_target_file}" ]]
+    then
+      tmpl_skip_info "$_target_file"
+      continue
+    fi
+
+    tmpl_mkdir_if_not_exists "$_output_dir"
+
+    tmpl_process_templates \
+      "${_tmpl_cfile_template_path}" \
+      > "$_target_file"
+  done
+else
+  _target_file="${TMPL_OUTPUT_DIR}/${_tmpl_cfile_template}"
+
+  if [[ -e "${_target_file}" ]]
+  then
+    tmpl_skip_info "$_target_file"
+    exit
+  fi
+
+  tmpl_mkdir_if_not_exists "$TMPL_OUTPUT_DIR"
+
+  tmpl_process_templates \
+    "${_tmpl_cfile_template_path}" \
+    > "$_target_file"
+fi
+

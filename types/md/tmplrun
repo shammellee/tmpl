@@ -1,0 +1,27 @@
+#! /usr/bin/env bash
+# vim: filetype=sh syntax=sh
+
+set -euo pipefail
+
+source "${TMPL_SCRIPT_INCLUDE_DIR}/tmpl"
+source "${TMPL_SCRIPT_INCLUDE_DIR}/diagnostics"
+
+_tmpl_md_template="README.md"
+_tmpl_md_default_file_name="README"
+_tmpl_md_target_dir="${TMPL_OUTPUT_DIR//\{\}/${1-}}"
+_tmpl_md_target_file="${_tmpl_md_target_dir}/${1-$_tmpl_md_default_file_name}.md"
+_tmpl_md_default_title='Readme'
+
+if [[ -e "$_tmpl_md_target_file" ]]
+then
+  tmpl_skip_info "$_tmpl_md_target_file"
+  exit
+fi
+
+tmpl_mkdir_if_not_exists "$_tmpl_md_target_dir"
+
+tmpl_process_templates \
+  --define=TMPL_MD_TITLE=${1-$_tmpl_md_default_title} \
+  "${TMPL_TYPE_DIR}/templates/${_tmpl_md_template}" \
+  > "$_tmpl_md_target_file"
+

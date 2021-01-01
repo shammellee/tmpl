@@ -1,0 +1,25 @@
+#! /usr/bin/env bash
+# vim: filetype=sh syntax=sh
+
+set -euo pipefail
+
+function tmpl_process_templates()
+{
+  local _macro_path="${TMPL_TYPE_DIR}/macros.m4"
+  _macro_file=
+
+  if [[ -f "$_macro_path" ]]
+  then
+    _macro_file="$_macro_path"
+  fi
+
+  m4 \
+    --define=TMPL_M4_MANAGED=$TMPL_M4_MANAGED \
+    --define=TMPL_TYPE=$TMPL_TYPE \
+    --include="${TMPL_M4_INCLUDE_DIR}" \
+    "${TMPL_M4_INCLUDE_DIR}/config.m4" \
+    "${TMPL_M4_INCLUDE_DIR}/utils.m4" \
+    ${_macro_file} \
+    $@
+}
+

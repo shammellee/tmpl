@@ -1,0 +1,26 @@
+#! /usr/bin/env bash
+# vim: filetype=sh syntax=sh
+
+set -euo pipefail
+
+source "${TMPL_SCRIPT_INCLUDE_DIR}/tmpl"
+source "${TMPL_SCRIPT_INCLUDE_DIR}/diagnostics"
+
+_tmpl_make_template='Makefile'
+_tmpl_make_default_project_name='myproject'
+_tmpl_make_target_file="${TMPL_OUTPUT_DIR}/${_tmpl_make_template}"
+
+tmpl_error_if_placeholders
+
+if [[ -e "$_tmpl_make_target_file" ]]
+then
+  tmpl_info_if_exists "${_tmpl_make_target_file}"
+fi
+
+tmpl_mkdir_if_not_exists "${TMPL_OUTPUT_DIR}"
+
+tmpl_process_templates \
+  --define=TMPL_MAKE_NAME="${1-$_tmpl_make_default_project_name}" \
+  "${TMPL_TYPE_DIR}/templates/Makefile" \
+  > "$_tmpl_make_target_file"
+

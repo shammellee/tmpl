@@ -1,0 +1,51 @@
+#! /usr/bin/env bash
+# vim: filetype=sh syntax=sh
+
+function tmpl_error()
+{
+  local _message=$1
+
+  echo -e "\e[31mError:\e[0m ${_message}"
+}
+
+function tmpl_warning()
+{
+  local _message=$1
+
+  echo -e "\e[33mWarning:\e[0m ${_message}"
+}
+
+function tmpl_info()
+{
+  local _label=$1
+  local _message=${2-}
+
+  echo -e "\e[33m${_label}:\e[0m ${_message}"
+}
+
+function tmpl_skip_info()
+{
+  if [[ -e "$1" ]]
+  then
+    tmpl_info "File exists" "skipping ${1}"
+  fi
+}
+
+function tmpl_mkdir_if_not_exists()
+{
+  if [[ ! -e "$1" ]]
+  then
+    mkdir -p "$1"
+  fi
+}
+
+function tmpl_error_if_placeholders()
+{
+  if [[ "$TMPL_OUTPUT_DIR" =~ '{}' ]]
+  then
+    tmpl_error "cannot use placeholders for ${TMPL_TYPE} in tmplfile"
+    echo -e "\e[31m${TMPL_TMPLFILE_MATCH_LINE_NUMBER}\e[0m:    --> ${TMPL_TMPLFILE_MATCH_LINE}"
+    exit 1
+  fi
+}
+
