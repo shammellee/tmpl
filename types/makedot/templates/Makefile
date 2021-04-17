@@ -1,0 +1,34 @@
+.ONESHELL:
+
+SHELL             := $(realpath /bin/bash)
+PROJECT_NAME      := TMPL_MAKE_NAME
+INPUT_FILE        := $(PROJECT_NAME).dot
+DOT               := dot
+OUTPUT_FORMAT_PDF := pdf
+OUTPUT_FORMAT_PNG := png
+OUTPUT_FORMAT_SVG := svg
+OUTPUT_FORMATS    :=
+OUTPUT_FORMATS    += $(OUTPUT_FORMAT_PDF)
+OUTPUT_FORMATS    += $(OUTPUT_FORMAT_PNG)
+OUTPUT_FORMATS    += $(OUTPUT_FORMAT_SVG)
+
+all: $(OUTPUT_FORMAT_SVG)
+.PHONY: all
+
+dev:
+	$(DOT) -T$(OUTPUT_FORMAT_PDF) -o $(PROJECT_NAME).$(OUTPUT_FORMAT_PDF) $(INPUT_FILE)
+	open -ga Skim $(PROJECT_NAME).$(OUTPUT_FORMAT_PDF)
+.PHONY: dev
+
+$(OUTPUT_FORMATS):
+	$(build)
+.PHONY: $(OUTPUT_FORMATS)
+
+clean:
+	rm -rf $(addprefix $(PROJECT_NAME).,$(OUTPUT_FORMATS))
+.PHONY: clean
+
+define build
+$(DOT) -T$@ -o $(PROJECT_NAME).$@ $(INPUT_FILE)
+endef
+
