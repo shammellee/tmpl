@@ -14,7 +14,7 @@ tmpl_error_if_placeholders
 
 if [[ -e "$_tmpl_make_target_file" ]]
 then
-  tmpl_info_if_exists "${_tmpl_make_target_file}"
+  tmpl_skip_info "${_tmpl_make_target_file}"
 fi
 
 tmpl_mkdir_if_not_exists "${TMPL_OUTPUT_DIR}"
