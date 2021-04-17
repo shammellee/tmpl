@@ -6,20 +6,44 @@ set -euo pipefail
 source "${TMPL_SCRIPT_INCLUDE_DIR}/tmpl"
 source "${TMPL_SCRIPT_INCLUDE_DIR}/diagnostics"
 
-_tmpl_docker_template="Dockerfile"
-_tmpl_docker_target_file="${TMPL_OUTPUT_DIR}/${_tmpl_docker_template}"
+_tmpl_docker_docker_ignore_file='.dockerignore'
+_tmpl_docker_dockerfile='Dockerfile'
+_tmpl_docker_docker_compose_file='docker-compose.yml'
+_tmpl_docker_target_docker_ignore_file="${TMPL_OUTPUT_DIR}/$_tmpl_docker_docker_ignore_file"
+_tmpl_docker_target_dockerfile="${TMPL_OUTPUT_DIR}/$_tmpl_docker_dockerfile"
+_tmpl_docker_target_docker_compose_file="${TMPL_OUTPUT_DIR}/$_tmpl_docker_docker_compose_file"
 
 tmpl_error_if_placeholders
 
-if [[ -e "$_tmpl_docker_target_file" ]]
+if [[ -e "$_tmpl_docker_target_docker_ignore_file" ]]
 then
-  tmpl_skip_info "$_tmpl_docker_target_file"
+  tmpl_skip_info "$_tmpl_docker_target_docker_ignore_file"
+  exit
+fi
+
+if [[ -e "$_tmpl_docker_target_dockerfile" ]]
+then
+  tmpl_skip_info "$_tmpl_docker_target_dockerfile"
+  exit
+fi
+
+if [[ -e "$_tmpl_docker_target_docker_compose_file" ]]
+then
+  tmpl_skip_info "$_tmpl_docker_target_docker_compose_file"
   exit
 fi
 
 tmpl_mkdir_if_not_exists "${TMPL_OUTPUT_DIR}"
 
 tmpl_process_templates \
-  "${TMPL_TYPE_DIR}/templates/${_tmpl_docker_template}" \
-  > "$_tmpl_docker_target_file"
+  "${TMPL_TYPE_DIR}/templates/${_tmpl_docker_docker_ignore_file}" \
+  > "$_tmpl_docker_target_docker_ignore_file"
+
+tmpl_process_templates \
+  "${TMPL_TYPE_DIR}/templates/${_tmpl_docker_dockerfile}" \
+  > "$_tmpl_docker_target_dockerfile"
+
+tmpl_process_templates \
+  "${TMPL_TYPE_DIR}/templates/${_tmpl_docker_docker_compose_file}" \
+  > "$_tmpl_docker_target_docker_compose_file"
 
