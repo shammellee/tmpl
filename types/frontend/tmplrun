@@ -1,0 +1,11 @@
+#! /usr/bin/env bash
+# vim: filetype=sh syntax=sh
+
+set -euo pipefail
+
+source "${TMPL_SCRIPT_INCLUDE_DIR}/tmpl"
+source "${TMPL_SCRIPT_INCLUDE_DIR}/diagnostics"
+source "${TMPL_SCRIPT_INCLUDE_DIR}/checks"
+
+cp -iR "${TMPL_TYPE_DIR}/templates/"** "$TMPL_OUTPUT_DIR"
+

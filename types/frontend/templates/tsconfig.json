@@ -1,0 +1,25 @@
+{
+  "compilerOptions":
+  {
+    "allowUnreachableCode": false
+    ,"downlevelIteration": true
+    ,"esModuleInterop": true
+    ,"importHelpers": true
+    ,"lib": ["dom", "esnext"]
+    ,"module": "es6"
+    ,"moduleResolution": "node"
+    ,"noImplicitAny": true
+    ,"noImplicitReturns": true
+    ,"noImplicitThis": true
+    ,"noUnusedLocals": true
+    ,"pretty": true
+    ,"resolveJsonModule": true
+    ,"sourceMap": true
+    ,"strict": true
+    ,"strictNullChecks": true
+    ,"suppressImplicitAnyIndexErrors": true
+    ,"target": "es5"
+    ,"types": ["node", "webpack-env"]
+  }
+}
+
